@@ -73,11 +73,6 @@ function insertDB(data, collection, message){
     }
   });
 }
-//
-// socket.on('connection', function (socket) {
-//   socket.emit('dataFE', { hello: 'world' });
-// });
-
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
