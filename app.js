@@ -64,7 +64,7 @@ socketIn.on('data', function(data){
   insertDB(data, 'hookdata', "timepoint");
 });
 
-//Submit to the DB - the 'data' is already a js obj so can go straight into mongodb
+//Submit to the DB - the 'data' is already a js obj so can go straight into mongodb (move this for productiob)
 function insertDB(data, collection, message){
   collection = db.get(collection)
   collection.insert(data, function (err, doc){
