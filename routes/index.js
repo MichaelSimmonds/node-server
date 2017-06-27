@@ -3,57 +3,26 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
+  getData(req, function(err, data) {
+    //This is recieving ALL THE DATA from the table and slicing only the last 10 values - the getData function should only query for  last values. Issues with converting cursors to arrays in mongodb.
+    var hkldArray = data.slice(-10,-1).map(function(datapoint){
+      return datapoint.hkld
+    })
+    console.log(hkldArray)
 
-/* GET hello world page. */
-router.get('/helloworld', function(req, res) {
-  res.render('helloworld', { title: 'Hello, world' });
-});
-
-
-/* GET Userlist page. */
-router.get('/userlist', function(req, res) {
-    var db = req.db;
-    var collection = db.get('usercollection');
-    collection.find({},{},function(e,docs){
-        res.render('userlist', {
-            "userlist" : docs
-        });
+    res.render('index', {
+        title: "Index",
+        hkldArray: hkldArray
     });
+  })
 });
 
-// /GET newuser page
-router.get('/newuser', function(req,res) {
-  res.render('newuser', {title: 'New User'});
-});
 
-// POST to newuser page
-router.post('/adduser', function(req,res) {
-  // Set our internal DB variable
+function getData(req, callback){
   var db = req.db;
-
-  //Get our form values. These rely on the 'name' attributes
-  var userName = req.body.username;
-  var userEmail = req.body.useremail;
-
-  //Set our collection
-  var collection = db.get('usercollection');
-
-  //Submit to the DB
-  collection.insert({
-    "username" : userName,
-    "email" : userEmail
-  }, function (err, doc){
-    if (err) {
-      //If there is an error - return it
-      res.send('There was an error');
-    }
-    else {
-      //Add forward to success page
-      res.redirect("userlist");
-    }
-  });
-})
+  var collection = db.get('hookdata');
+  // var last10 = collection.find().sort({_id:1}).limit(50)
+  collection.find({}).then(function (value) { callback(null,value) });
+}
 
 module.exports = router;

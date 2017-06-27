@@ -10,13 +10,13 @@ var monk = require('monk');
 var db = monk('localhost:27017/nodetest1')
 // routes
 var index = require('./routes/index');
-var chart = require('./routes/chart');
 //initialise express
 var app = express();
 //initialise websockets
 var server = require('http').Server(app);
 var socketIn = require('socket.io-client')('http://localhost:8080');
 var io = require('socket.io')(server);
+// var io = require('socket.io')('http://localhost:7070');
 // var socketIn = io.connect("http://localhost:8080")
 
 server.listen(7070);
@@ -39,10 +39,10 @@ app.use(function(req,res,next){
     next();
 });
 app.use('/', index);
-app.use('/chart', chart);
 
-// WEbsockets io
+// Websockets server io
 io.on('connection', function (socket) {
+  console.log('Socket.io EMITTING')
   socket.emit('news', { hello: 'world' });
   socket.on('my other event', function (data) {
     console.log(data);
@@ -52,25 +52,11 @@ io.on('connection', function (socket) {
 
 //websocket data incoming
 socketIn.on('connection', function(){ console.log("hookdata WS connected")});
-var prev_timepoint = new Date("2011-03-26T18:15:04.982Z")
-socketIn.on('data', function(data){
-  //the collection is dependant on the timestamp.
-  //evert timepoint is stored in hookdata collection
-  //IF the timpoint.minute changes from the previous timepoint - add the first timepoint into the hookdata-minute collection(this should be an average of the timepoints but outside the scope of POC)
-  var curr_timepoint = new Date(data.timestamp);
-  var data = data
 
-  if (curr_timepoint.getMinutes() != prev_timepoint.getMinutes()) {
-    insertDB(data, 'hookdata-minute', "minute   ");
-  }
-  //IF the timepoint hour changes add to hookdata-hour
-  if (curr_timepoint.getHours() != prev_timepoint.getHours()) {
-    insertDB(data, 'hookdata-hours', "Hour")
-  }
-  //This would continue to day, week, month and year but outside scope of POC.
-  //Also add the data to the overall hookdata table
+
+socketIn.on('data', function(data){
+  //Place incoming data into Mongodb Database
   insertDB(data, 'hookdata', "timepoint");
-  prev_timepoint = curr_timepoint
 });
 
 //Submit to the DB - the 'data' is already a js obj so can go straight into mongodb
