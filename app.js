@@ -19,7 +19,10 @@ var io = require('socket.io')(server);
 // var io = require('socket.io')('http://localhost:7070');
 // var socketIn = io.connect("http://localhost:8080")
 
-server.listen(7070);
+// server.listen(port);
+server.listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port'));
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -49,11 +52,13 @@ io.on('connection', function (socket) {
   });
 });
 
+//hkld websocket connected
+socketIn.on('connection', function(){
+  console.log("hookdata WS connected")
+});
 
-//websocket data incoming
-socketIn.on('connection', function(){ console.log("hookdata WS connected")});
 
-
+//hkld websocket data incoming
 socketIn.on('data', function(data){
   //Place incoming data into Mongodb Database
   insertDB(data, 'hookdata', "timepoint");
