@@ -1,0 +1,17 @@
+extends layout
+
+script(src='/socket.io/socket.io.js')
+
+
+
+block content
+    h1.
+        User List
+
+script.
+  console.log('JADEAARRSSEE')
+  var socket = io.connect('http://localhost');
+  socket.on('news', function (data) {
+  console.log(data);
+  socket.emit('my other event', { my: 'data' });
+  });
